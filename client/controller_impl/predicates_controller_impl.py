@@ -1,4 +1,3 @@
-from ontobio.golr.golr_query import GolrAssociationQuery, M
 from swagger_server.models.beacon_predicate import BeaconPredicate
 
 from cachetools.func import ttl_cache
@@ -17,29 +16,4 @@ def get_predicates():
 	:rtype: List[Predicate]
 	"""
 
-	g = GolrAssociationQuery(
-		q='*:*',
-		facet_fields=[M.RELATION, M.RELATION_LABEL],
-		facet_pivot_fields=[M.RELATION, M.RELATION_LABEL],
-		rows=0
-	)
-
-	results = utils.try_multi(g.exec)
-
-	facet_pivot = results['facet_pivot']
-
-	predicates = []
-
-	for p in facet_pivot['relation,relation_label']:
-		identifier = p['value']
-		for pivot in p['pivot']:
-			name = pivot['value']
-			count = pivot['count']
-
-			edge_label = utils.snake_case(name)
-
-			p = BeaconPredicate(id=identifier, edge_label=edge_label, frequency=count)
-
-			predicates.append(p)
-
-	return predicates
+	return "predicates"

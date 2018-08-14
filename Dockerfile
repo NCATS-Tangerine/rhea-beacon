@@ -10,8 +10,7 @@ COPY requirements.txt /usr/src/requirements.txt
 RUN pip install --upgrade pip && \
     pip install -r /usr/src/requirements.txt && \
     pip install /usr/src/server/ && \
-    pip install /usr/src/client/ && \
-    pip install ontobio
+    pip install /usr/src/client/
 
 WORKDIR /usr/src/server
 

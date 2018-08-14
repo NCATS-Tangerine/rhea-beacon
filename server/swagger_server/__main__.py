@@ -3,23 +3,16 @@
 import connexion
 
 from swagger_server import encoder
-from flask import redirect
 
-from tornado.log import enable_pretty_logging
-
-app = connexion.App(__name__, specification_dir='./swagger/')
-
-@app.route('/')
-def to_UI():
-    return redirect('/ui')
+from controller_impl import utils
 
 def main():
-    enable_pretty_logging()
-
+    app = connexion.App(__name__, specification_dir='./swagger/')
     app.app.json_encoder = encoder.JSONEncoder
     app.add_api('swagger.yaml', arguments={'title': 'Translator Knowledge Beacon API'})
-    app.run(port=8088, server='tornado')
 
+    port_config = utils.load_config(silent=False)['server']['port']
+    app.run(port=port_config)
 
 if __name__ == '__main__':
     main()

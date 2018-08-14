@@ -1,11 +1,10 @@
-server/predicates.json
-server/types.json
-server/kmap.json
+# Configuration files
+config.yaml
+docker-compose.yaml
 
-.vscode
+# Swagger code-gen jar
+*.jar
 
-*~
-swagger*.jar
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -61,9 +60,8 @@ coverage.xml
 
 # Django stuff:
 *.log
-.static_storage/
-.media/
 local_settings.py
+db.sqlite3
 
 # Flask stuff:
 instance/
@@ -111,4 +109,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-/.gradle/
+
+# VSCode settings
+.vscode

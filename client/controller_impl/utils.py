@@ -1,6 +1,9 @@
 import json
 
+import os, yaml, threading
 from datetime import date, timedelta
+
+__config_dict = None
 
 def snake_case(string):
     return string.lower().replace(' ', '_')
@@ -18,9 +21,18 @@ def map_category(category):
         # 'model' : 'model to disease mixin'
     }.get(category.lower(), category)
 
-def base_path():
-    return 'https://api.monarchinitiative.org/api/'
-    # return 'https://owlsim.monarchinitiative.org/api/'
+def base_path_search():
+    return 'https://www.rhea-db.org/rest/1.0/ws/reaction/biopax2?q='
+
+def base_path_reaction():
+    return 'https://www.rhea-db.org/rest/1.0/ws/reaction/biopax2/'
+
+def check_status(response):
+    """
+    Throws an exception if response code is not 200
+    """
+    if response.status_code != 200:
+        raise Exception(response.url + " returned status code: " + str(response.status_code))
 
 def biolink_prefix():
     """
@@ -81,3 +93,43 @@ def try_multi(method, repeats=5, **kwargs):
             pass
 
     raise Exception('Tried to call ' + method.__name__ + ' ' + repeats + ' many times and failed')
+
+def load_config(silent=True):
+    """
+    Walks backwards from __file__ to find config.yaml, loads and returns as a
+    dictionary.
+
+    Note: traverses up whole file system if config.yaml is not found, but this
+          doesn't appear to be a costly opperation.
+
+    source: https://www.programcreek.com/python/example/3198/yaml.safe_load
+    """
+
+    global __config_dict
+
+    if __config_dict is not None:
+        return __config_dict
+
+    config = None
+    f = __file__
+    while config is None:
+        d = os.path.dirname(f)
+        path = os.path.join(d, 'config.yaml')
+
+        if not silent:
+            print('Searching for config.yaml in:', path)
+
+        if os.path.isfile(path):
+            config = path
+            break
+        elif f == d:
+            break
+
+        f = d
+
+    if not config:
+        raise Exception('Could not find config.yaml in any parent directory of {}, try copying and renaming {} in projects root directory'.format(__file__, __sample_name))
+
+    __config_dict = yaml.safe_load(open(config).read())
+
+    return __config_dict

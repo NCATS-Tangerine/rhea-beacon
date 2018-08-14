@@ -1,5 +1,4 @@
 from controller_impl import utils
-from ontobio.golr.golr_query import GolrSearchQuery
 
 from swagger_server.models.exact_match_response import ExactMatchResponse
 
@@ -26,26 +25,4 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 # ttl is "time to live" in seconds
 @ttl_cache(maxsize=1000, ttl=86400)
 def _get_exact_matches(conceptId):
-    results = GolrSearchQuery(
-        term=conceptId,
-        fq={'id' : conceptId},
-        rows=1,
-        hl=False
-    ).search()
-
-    docs = results.docs
-
-    exactmatches = []
-
-    for d in docs:
-        if  utils.get_property(d, 'id') == conceptId:
-            matches = utils.get_property(d, 'equivalent_curie', [])
-            exactmatches.extend(matches)
-
-    e = ExactMatchResponse(
-        id=conceptId,
-        within_domain=len(docs) != 0,
-        has_exact_matches=exactmatches
-    )
-
-    return e
+    return "exactmatches"
