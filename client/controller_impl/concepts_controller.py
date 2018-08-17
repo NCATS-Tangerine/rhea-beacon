@@ -7,37 +7,52 @@ import yaml
 import ast
 
 import requests
-import xml.etree.ElementTree as ElementTree
+import xml.etree.ElementTree as etree
 
-from controller_impl import utils
+from controller_impl import parser as ps
 
-RHEA_PREFIX = "RHEA:"
-RHEA_RXN_CATEGORIES = ["molecular activity"]
+# RHEA_PREFIX = "RHEA:"
+# RHEA_RXN_CATEGORIES = ["molecular activity"]
 
-#TODO: should maybe be getting this from the document instead of hardcoding it
-BP = "{http://www.biopax.org/release/biopax-level2.owl#}"
-RDF = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
+# #TODO: should maybe be getting this from the document instead of hardcoding it
+# BP = "{http://www.biopax.org/release/biopax-level2.owl#}"
+# RDF = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
+
+#TODO: case insensitive
 
 def get_concept_details(conceptId):
     #TODO: find by concepts that are not reactions
     #TODO: include check for 404 not found status code
-    if conceptId.upper().startswith(RHEA_PREFIX):
-        response = requests.get(utils.base_path_reaction() + conceptId[5:])
-        utils.check_status(response)
+    if not ps.in_namespace(conceptId):
+        return None
 
-        e = ElementTree.fromstring(response.content)
-        rxn_el = e.find(BP + "biochemicalReaction")
-        name = rxn_el.findtext(BP + "NAME")
+    if ps.startswith_rhea(conceptId):
+        e = ps.query_concept(conceptId[5:])
+        rxn_el = ps.get_rxn_tag(e)
+        name = ps.get_name_from_tag(rxn_el)
 
         details = populate_concept_details(rxn_el)
         
         return BeaconConceptWithDetails(
             id=conceptId,
             name=name,
-            categories=RHEA_RXN_CATEGORIES,
+            categories=ps.RHEA_RXN_CATEGORIES,
             details=details
         )
-        
+    elif ps.startswith_ec(conceptId):
+        e = ps.query_search(conceptId[3:])
+        related_rxns = ps.get_rhea_ids(e)
+            
+        detail = BeaconConceptDetail(
+            tag="related reactions",
+            value=", ".join(related_rxns)
+        )
+
+        return BeaconConceptWithDetails(
+            id=conceptId,
+            categories=ps.EC_RXN_CATEGORIES,
+            details=[detail]
+        )
     else:
         return None
 
@@ -47,30 +62,23 @@ def populate_concept_details(element):
     """
     details = []
     controllers = []
-    CTRL_TAG = "#rel/controller/"
-
-    # for child in element.iter(BP+"COMMENT"):
-    #     text = child.text.split("=", 2)
-    #     details.append(BeaconConceptWithDetails(tag=text[0], value=text[1]))
-    
-    # for child in element.iter("./"+BP+"XREF/[rdf:resource])
     
     for child in element.iter():
         label = child.tag
         tag = None
         # <bp:COMMENT ...>RHEA:Class of reactions=false</bp:COMMENT>
-        if label == BP + "COMMENT":
+        if ps.is_comment_tag(label):
             text = child.text.split("=", 2)
             tag = text[0]
             value = text[1]
         # <bp:XREF rdf:resource="#rel/controller/UNIPROT:P12276"/>
-        elif label == BP + "XREF":
-            text = child.attrib[RDF + "resource"]
-            if text.startswith(CTRL_TAG):
-                controllers.append(text[len(CTRL_TAG):])
+        elif ps.is_xref_tag(label):
+            controller = ps.get_controller(child)
+            if controller is not None:
+                controllers.append(controller)
         
         # <bp:EC-NUMBER ...>2.3.1.38</bp:EC-NUMBER>
-        elif label == BP + "EC-NUMBER":
+        elif ps.is_ec_tag(label):
             tag = "Enzyme (EC Number)"
             value = child.text
 
@@ -96,21 +104,16 @@ def get_concepts(keywords, categories=None, size=None):
 
     concepts = []
     for keyword in keywords:
-        response = requests.get(utils.base_path_search() + keyword)
-        utils.check_status(response)
+        e = ps.query_search(keyword)
 
-        e = ElementTree.fromstring(response.content)
+        matches = ps.get_rhea_ids(e)
 
-        matches = e.findall("./resultset/rheaReaction/rheaid")
-
-        for match in matches:
-            reaction_id = RHEA_PREFIX + match.findtext("id")
-            uri = match.find("rheaUri").findtext("uri")
-
+        for rhea_id in matches:
             concept = BeaconConcept(
-                id=reaction_id,
-                description=uri,
-                categories=RHEA_REACTION_CATEGORIES
+                id=rhea_id,
+                #name=name,
+                description=ps.RHEA_WEB_URI + rhea_id,
+                categories=ps.RHEA_RXN_CATEGORIES
             )
 
             concepts.append(concept)
@@ -121,28 +124,70 @@ def get_concepts(keywords, categories=None, size=None):
 
 def get_exact_matches_to_concept_list(c):
     """
-    Returns dummy list: Rhea doesn't seem to have much info about exact matches
+    Returns Rhea reactions with same participants, different reactions
     """
     results = []
-    for curie in c:
-        response = requests.get(utils.base_path_search() + curie)
-        utils.check_status(response)
+    # for curie in c:
+    #     curie_components = curie.split(":")
+    #     namespace = curie_components[0] + ":"
+    #     if namespace not in C.NAMESPACES:
+    #         results.append(ExactMatchResponse(
+    #             id=curie,
+    #             within_domain=False,
+    #             has_exact_matches=[]
+    #         ))
+    #     else: 
+    #         if curie.startswith(C.EC):
+    #             response = requests.get(utils.base_path_search() + curie[3:])
+    #         else:
+    #             response = requests.get(utils.base_path_search() + curie)
+            
+    #         utils.check_status(response)
 
-        e = ElementTree.fromstring(response.content)
+    #         e = etree.fromstring(response.content)
 
-        num_results = e.find("resultset").attrib["numberofrecordsreturned"]
-        #TODO: check if this is best way to check equal to 0 in python
-        if num_results > 0:
-            within_domain = True 
-        else: 
-            within_domain = False 
-        
-        results.append(ExactMatchResponse(
-            id=curie,
-            within_domain=within_domain,
-            has_exact_matches=[]
-        ))
+    #         num_results = int(e.find("resultset").attrib["numberofrecordsreturned"])
+    #         if num_results > 0:
+    #             within_domain = True 
+    #             if curie.startswith(C.RHEA):
+    #                 has_exact_matches = get_similar_reactions(curie)
+    #             else:
+    #                 has_exact_matches = []
+    #         else: 
+    #             within_domain = False
+    #             has_exact_matches = [] 
+    
+    #         results.append(ExactMatchResponse(
+    #             id=curie,
+    #             within_domain=within_domain,
+    #             has_exact_matches=has_exact_matches
+    #         ))
     
     return results
-        
+    
+
+def get_name(rhea_num):
+    """
+    Finds name of reaction from RHEA reaction number (e.g. 37175)
+    """
+    e = ps.query_search(ps.RHEA + rhea_num)
+
+    return ps.get_name(e)
+
+
+def get_similar_reactions(rhea_curie):
+    """
+    Finds all reactions with same reactants but different directions
+    from given Rhea indentifier (e.g. RHEA:37175)
+    """
+    matches = []
+    # response = requests.get(utils.base_path_reaction() + rhea_curie[5:])
+
+    # e = etree.fromstring(response.content)
+    # for reaction in e.iter(C.BP+"relationshipXref"):
+    #     if reaction.find(C.BP+"DB-VERSION") is not None:
+    #         rxn_id = reaction.findtext(C.BP+"ID")
+    #         matches.append(C.RHEA + rxn_id)
+
+    return matches
 
