@@ -1,4 +1,4 @@
-# RHEA Beacon
+# Rhea Data Python Client
 
 This package contains methods for utilizing some Rhea data files (https://www.rhea-db.org/download).
 
