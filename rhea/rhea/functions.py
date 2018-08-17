@@ -19,12 +19,15 @@ def rhea2reactome(rhea_id:str) -> List[str]:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    result = reactome_df.loc[rhea_id]['ID']
+    try:
+        result = reactome_df.loc[rhea_id]['ID']
 
-    if isinstance(result, str):
-        return [result]
-    else:
-        return result.tolist()
+        if isinstance(result, str):
+            return [result]
+        else:
+            return result.tolist()
+    except:
+        return []
 
 def rhea2metacyc(rhea_id:str) -> str:
     global metacyc_df
@@ -34,7 +37,10 @@ def rhea2metacyc(rhea_id:str) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return metacyc_df.loc[rhea_id].at['ID']
+    try:
+        return metacyc_df.loc[rhea_id].at['ID']
+    except KeyError:
+        return None
 
 def rhea2macie(rhea_id:str) -> str:
     global macie_df
@@ -44,7 +50,10 @@ def rhea2macie(rhea_id:str) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return macie_df.loc[rhea_id].at['ID']
+    try:
+        return macie_df.loc[rhea_id].at['ID']
+    except KeyError:
+        return None
 
 def rhea2kegg(rhea_id:str) -> str:
     global kegg_df
@@ -54,7 +63,10 @@ def rhea2kegg(rhea_id:str) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return kegg_df.loc[rhea_id].at['ID']
+    try:
+        return kegg_df.loc[rhea_id].at['ID']
+    except KeyError:
+        return None
 
 def rhea2ecocyc(rhea_id:str) -> str:
     global ecocyc_df
@@ -64,7 +76,10 @@ def rhea2ecocyc(rhea_id:str) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return ecocyc_df.loc[rhea_id].at['ID']
+    try:
+        return ecocyc_df.loc[rhea_id].at['ID']
+    except KeyError:
+        return None
 
 def rhea2ec(rhea_id:Union[str, int]) -> str:
     global ec_df
@@ -74,7 +89,10 @@ def rhea2ec(rhea_id:Union[str, int]) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return ec_df.loc[rhea_id].at['ID']
+    try:
+        return ec_df.loc[rhea_id].at['ID']
+    except KeyError:
+        return None
 
 def is_a(rhea_id:Union[str, int]) -> str:
     global is_a_df
@@ -84,7 +102,10 @@ def is_a(rhea_id:Union[str, int]) -> str:
 
     rhea_id = make_local_rhea_id(rhea_id)
 
-    return str(is_a_df.loc[rhea_id].at['TO_REACTION_ID'])
+    try:
+        return str(is_a_df.loc[rhea_id].at['TO_REACTION_ID'])
+    except KeyError:
+        return None
 
 def chebi2name(chebiId:str) -> str:
     global chebi_name_df
@@ -99,4 +120,7 @@ def chebi2name(chebiId:str) -> str:
 
     chebiId = make_curie(chebiId, 'CHEBI')
 
-    return chebi_name_df.loc[chebiId].at['name'].strip()
+    try:
+        return chebi_name_df.loc[chebiId].at['name'].strip()
+    except KeyError:
+        return None
