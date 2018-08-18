@@ -2,19 +2,18 @@
 
 Knowledge bacon wrapper for the [Rhea Annotated Reactions database](https://www.rhea-db.org/)
 
-## Translating Rhea to the Beacon
-The beacon converts Rhea terms into concepts as noted below.
+## Translating Rhea to Beacon Concepts and Statements
 
-### Concepts
-There are 4 types of namespaces returned by the beacon. Related Biolink categories are in `[]`.
+#### Concepts
+The beacon converts Rhea terms into concepts as noted below. There are 4 types of namespaces returned by the beacon. Related Biolink categories are in `[]`.
 
 1. **RHEA:** Rhea reactions - `['molecular activity']`
 2. **CHEBI:** molecules, as identified by their CHEBI id - `['molecular entity']`
 3. **GENERIC:** generic compound, as classified by RHEA `['molecular entity']`
 4. **EC:** Enzyme Commission number related to a Rhea reaction - `['genomic entity']`
 
-### Statements
-Statements always have a **RHEA:** id as the subject, and can be between the following groups. Associated Biolink labels are in `[]`.
+#### Statements
+Statements always have a **RHEA:** id as the subject, and can be between the following groups (associated Biolink labels are in `[]`):
 
 1. **RHEA-RHEA** - `[overlaps]`
 2. **RHEA-CHEBI** - `[has_participant]`
