@@ -1,6 +1,2 @@
 connexion
-#typing==3.6.4
-#tornado==4.5.3
-#pymongo
-#cachetools
-#pandas<0.21
+
