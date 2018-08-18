@@ -29,6 +29,11 @@ def make_local_rhea_id(identifier:str) -> str:
         _, identifier = identifier.split(':', 1)
     return identifier
 
+def make_global_rhea_id(identifier:str) -> str:
+    if ':' not in identifier:
+        identifier = "RHEA:" + identifier
+    return identifier
+
 def make_dataframe(filename:str, index, header='infer', names=None) -> DataFrame:
     data_path = get_data_path(filename)
     df = pd.read_csv(data_path, sep='\t', header=header, names=names, dtype=str)

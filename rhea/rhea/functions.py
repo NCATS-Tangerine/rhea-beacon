@@ -1,5 +1,5 @@
 from typing import Union, List
-from rhea.utils import make_curie, make_local_rhea_id, make_dataframe
+from rhea.utils import make_curie, make_local_rhea_id, make_dataframe, make_global_rhea_id
 
 chebi_name_df = None
 is_a_df = None
@@ -10,6 +10,7 @@ kegg_df = None
 macie_df = None
 metacyc_df = None
 reactome_df = None
+rhea_name_df = None
 
 def rhea2reactome(rhea_id:str) -> List[str]:
     global reactome_df
@@ -23,9 +24,9 @@ def rhea2reactome(rhea_id:str) -> List[str]:
         result = reactome_df.loc[rhea_id]['ID']
 
         if isinstance(result, str):
-            return [result]
+            return ["Reactome:"+result]
         else:
-            return result.tolist()
+            return ["Reactome:"+name for name in result]
     except:
         return []
 
@@ -38,7 +39,7 @@ def rhea2metacyc(rhea_id:str) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return metacyc_df.loc[rhea_id].at['ID']
+        return "MetaCyc:" + metacyc_df.loc[rhea_id].at['ID']
     except KeyError:
         return None
 
@@ -51,7 +52,7 @@ def rhea2macie(rhea_id:str) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return macie_df.loc[rhea_id].at['ID']
+        return "MACiE:" + macie_df.loc[rhea_id].at['ID']
     except KeyError:
         return None
 
@@ -64,7 +65,7 @@ def rhea2kegg(rhea_id:str) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return kegg_df.loc[rhea_id].at['ID']
+        return "KEGG:" + kegg_df.loc[rhea_id].at['ID']
     except KeyError:
         return None
 
@@ -77,7 +78,7 @@ def rhea2ecocyc(rhea_id:str) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return ecocyc_df.loc[rhea_id].at['ID']
+        return "EcoCyc:" + ecocyc_df.loc[rhea_id].at['ID']
     except KeyError:
         return None
 
@@ -90,7 +91,7 @@ def rhea2ec(rhea_id:Union[str, int]) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return ec_df.loc[rhea_id].at['ID']
+        return "EC:" + ec_df.loc[rhea_id].at['ID']
     except KeyError:
         return None
 
@@ -103,7 +104,7 @@ def is_a(rhea_id:Union[str, int]) -> str:
     rhea_id = make_local_rhea_id(rhea_id)
 
     try:
-        return str(is_a_df.loc[rhea_id].at['TO_REACTION_ID'])
+        return "RHEA:" + str(is_a_df.loc[rhea_id].at['TO_REACTION_ID'])
     except KeyError:
         return None
 
@@ -122,5 +123,17 @@ def chebi2name(chebiId:str) -> str:
 
     try:
         return chebi_name_df.loc[chebiId].at['name'].strip()
+    except KeyError:
+        return None
+
+def rhea2name(rhea_id:str) -> str:
+    global rhea_name_df
+    if rhea_name_df is None:
+        rhea_name_df = make_dataframe(filename='rhea2name.tsv', index='RHEA_ID')
+
+    rhea_id = make_global_rhea_id(rhea_id)
+
+    try:
+        return rhea_name_df.loc[rhea_id].at['Name']
     except KeyError:
         return None

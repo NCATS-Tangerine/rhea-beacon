@@ -1,6 +1,2 @@
-client:
-  search-api: https://www.rhea-db.org/rest/1.0/ws/reaction/biopax2?q=
-  reaction-api: https://www.rhea-db.org/rest/1.0/ws/reaction/biopax2/
-
 server:
   port: 8080

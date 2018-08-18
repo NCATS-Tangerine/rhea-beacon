@@ -21,10 +21,25 @@ PMID = "https://www.ncbi.nlm.nih.gov/pubmed/"
 
 CTRL_TAG = "#rel/controller/"
 
-# Other
+# Reaction Categories
 RHEA_RXN_CATEGORIES = ["molecular activity"]
 EC_RXN_CATEGORIES = ["genomic entity"]
 CHEBI_RXN_CATEGORIES = ["molecular entity"]
+
+RHEA_RXN_CAT_DESCR = "an execution of a molecular function carried out by a gene product or macromolecular complex" 
+EC_RXN_CAT_DESCR = "an entity that can either be directly located on a genome (gene, transcript, exon, regulatory region) or is encoded in a genome (protein)"
+CHEBI_RXN_CAT_DESCR = "a gene, gene product, small molecule or macromolecule (including protein complex)"
+
+# Relationship Edge Labels
+RXN_TO_MOL = "has_participant"
+MOL_TO_MOL = "interacts_with"
+RXN_TO_RXN = "overlaps"
+
+RXN_TO_MOL_DESCR = "holds between a process and a continuant, where the continuant is somehow involved in the process"
+RXN_TO_RXN_DESCR = "holds between entities that overlap in their extents (materials or processes)"
+
+
+
 RHEA_WEB_URI = "https://www.rhea-db.org/reaction?id="
 
 
@@ -33,9 +48,15 @@ def query_search(search_term):
     Searches for given id and returns root Element of search results document. Returns None if error was 
     thrown during API call
     """
-    response = requests.get(API_SEARCH + search_term)
-    if response.status_code != 200:
-        print("APIException: " + response.url + " returned status code: " + str(response.status_code))
+    if startswith_ec(search_term):
+        response = requests.get(API_SEARCH + search_term[3:])
+    else:
+        response = requests.get(API_SEARCH + search_term)
+    if response.status_code == 404:
+        print("Could not find search term: " + search_term)
+        return None
+    elif response.status_code != 200:
+        print("APIException for " + search_term + ": " + response.url + " returned status code: " + str(response.status_code))
         return None
     else:
         return etree.fromstring(response.content)
@@ -45,7 +66,13 @@ def query_concept(search_id):
     Searches for given id and returns root Element of reaction details document (in Biopax2 XML). 
     Returns None if error was thrown during API call
     """
-    response = requests.get(API_RXN + search_id)
+    if startswith_rhea(search_id):
+        response = requests.get(API_RXN + search_id[5:])
+    else:
+        response = requests.get(API_RXN + search_id)
+    if response.status_code == 404:
+        print("Could not find search id: " + search_id)
+        return None
     if response.status_code != 200:
         print("APIException: " + response.url + " returned status code: " + str(response.status_code))
         return None
@@ -198,6 +225,13 @@ def get_evidence(e):
             "uri": uri 
         })
     return evidence
+
+def get_num_of_results(root):
+    result = root.find("resultset")
+    if result is not None:
+        return int(result.attrib["numberofrecordsreturned"])
+    else:
+        return 0
 
 
 def in_namespace(concept_id):

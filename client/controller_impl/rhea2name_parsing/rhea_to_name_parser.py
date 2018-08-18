@@ -11,42 +11,41 @@ import csv
 API_RXN = 'https://www.rhea-db.org/rest/1.0/ws/reaction/biopax2/'
 BP = "{http://www.biopax.org/release/biopax-level2.owl#}"
 
-def harvest_names(start=10000, end=56987):
+def harvest_names(start, end):
     """
     Collects the human-readable formulas of the RHEA reaction from given start to end indices.
     As of Aug 16, 2018 - RHEA appears to have reactions listed from 10000 to 56987
     """
     file_name = "rhea2name_" + str(start) + "_" + str(end) + ".tsv"
+    file_name_err = file_name[:-4] + "_errors.tsv"
+
     error_ids = []
-    with open(file_name, 'w') as tsvfile:
+    with open(file_name, 'w') as tsvfile, open(file_name_err, 'w') as errorfile:
         writer = csv.writer(tsvfile, delimiter='\t')
         writer.writerow(["RHEA_ID", "Name"])
+        err_writer = csv.writer(errorfile, delimiter='\t')
+        err_writer.writerow(["RHEA_ID", "Info"])
         for i in range(start, end+1):
             str_i = str(i)
             try:
                 response = requests.get(API_RXN + str_i)
-                e = etree.fromstring(response.content)
-
+                content = response.content
+                e = etree.fromstring(content)
                 name = get_name(e)
 
-                if name is None:
-                    print("WARN: could not find name for RHEA: " + str_i)
-                    error_ids.append(str_i)
+                writer.writerow(["RHEA:" + str_i, name])
+                if i % 5 == 0:
+                    print("[Recording every 5] Processed RHEA:" + str_i + " == " + name)
+            except etree.ParseError:
+                if "Not found" in str(content):
+                    print("LOG - RHEA: " + str_i + " does not exist")
+                    err_writer.writerow(["RHEA:" + str_i, "DNE"])
                 else:
-                    writer.writerow(["RHEA:" + str_i, name])
-                    if i % 5 == 0:
-                        print("[Recording every 5] Processed RHEA:" + str_i + " == " + name)
+                    print("ERROR: could not get name for RHEA: " + str_i)
+                    err_writer.writerow(["RHEA:" + str_i, "parse error"])
             except:
                 print("ERROR: could not get name for RHEA: " + str_i)
-                error_ids.append(str_i)
-    
-    if error_ids:
-        file_name_err = file_name[:-4] + "_errors.tsv"
-        with open(file_name_err, 'w') as errorfile:
-            writer = csv.writer(errorfile, delimiter='\t')
-            writer.writerow(["RHEA_ID"])
-            for e_id in error_ids:
-                writer.writerow([e_id])
+                err_writer.writerow(["RHEA:" + str_i, "error"])
 
 def get_rxn_tag(e):
     """
@@ -76,5 +75,3 @@ def get_name(e):
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         harvest_names(int(sys.argv[1]), int(sys.argv[2]))
-    else:
-        harvest_names()
