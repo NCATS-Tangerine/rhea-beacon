@@ -116,59 +116,37 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
  https://docs.docker.com/engine/userguide/
 ```
-
-#### Installing Docker Compose
-
-You will then also need to [install Docker Compose](https://docs.docker.com/compose/install/) alongside Docker on your target Linux operating environment.
-
-Note that under Ubuntu, you need to run docker (and docker-compose) as 'sudo'. 
-
-#### Testing Docker Compose
-
-In order to ensure Docker Compose is working correctly, issue the following command:
-```
-$ docker-compose --version
-docker-compose version 1.18.0, build 8dd22a9
-```
-Note that your particular version and build number may be different than what is shown here. We don't currently expect that docker-compose version differences should have a significant impact on the build, but if in doubt, refer to the release notes of the docker-compose site for advice.
-
 #### Configuring the Application
 
-Copy the config.yaml-template into config.yaml and customize it to the credentials of your TKG database. 
+Copy the *config.yaml-template* into *config.yaml*.
 
-Also make a copy of the docker-compose.yaml-template into docker-compose.yaml and customize the Neo4j credentials to those of your TKG database. Alternately, set the NEO4J_AUTH environment variable to these credentials.
+You can customize the *config.yaml* to set the desired TCP port for your Rhea beacon. Alternately, you can use the  **-p** directive in your docker *run* command (see below) to dynamically remap your Rhea application to publish the default port 8080 on another port of interest, e.g. **-p 8090:8080** 
 
-To build the Docker containers, run the following command
+To build the Docker container, run the following command
 
 ```
  $ cd ..  # make sure you are back in the root project directory
- $ sudo docker-compose -f docker-compose.yaml build
+ $ sudo docker build -t ncats:rhea-beacon .
 ```
 
-This command make take some time to execute, as it is downloading and building your docker containers.
+The **-t** directive explicitly names the Docker image for your container.  This command make take some time to execute, as it is downloading and building your docker container.
 
 To run the system, run the following command:
 
 ```
-$ sudo docker-compose up
+$ sudo docker run -d -rm -p 8090:8080 -n rheab ncats:rhea-beacon
+```
+
+The **-n** explicitely names the Docker container (e.g. to 'rheab'); **-d** parameter runs the beacon as a daemon; and the **-rm** directive forces deletion of the Docker container when it is stopped. To troubleshoot the Docker, you may sometimes wish to omit the latter two directives.
+
+To view the Docker (running) logs for the beacon, run the following:
+
+```
+$ sudo docker logs -f rheab
 ```
 
 To shut down the system, run the following:
 
 ```
-$ sudo docker-compose down
-```
-
-You can also selectively shut down (and start up) the web api and database Docker containers, as follows:
-
-```
-$ sudo docker-compose down tkg-api
-$ sudo docker-compose down tkg-db
-```
-and
-
-```
-$ sudo docker-compose up tkg-db
-$ sudo docker-compose up tkg-api
-
+$ sudo docker stop rheab
 ```
