@@ -45,7 +45,7 @@ Setup the config file by copying the template file:
 ```
 cp config.yaml-template config.yaml
 ``` 
-Change the database settings in `config.yaml` to match the address and credentials of the wanted neo4j database.
+(Optionally) change the port setting in `config.yaml` to match the port upon which you wish to publish the rhea beacon (if not port 8080).
 
 Navigate into the `/server` directory and run:
 ```
