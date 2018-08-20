@@ -134,7 +134,7 @@ The **-t** directive explicitly names the Docker image for your container.  This
 To run the system, run the following command:
 
 ```
-$ sudo docker run -d -rm -p 8090:8080 -n rheab ncats:rhea-beacon
+$ sudo docker run -d --rm -p 8090:8080 --name rheab ncats:rhea-beacon
 ```
 
 The **-n** explicitely names the Docker container (e.g. to 'rheab'); **-d** parameter runs the beacon as a daemon; and the **-rm** directive forces deletion of the Docker container when it is stopped. To troubleshoot the Docker, you may sometimes wish to omit the latter two directives.
