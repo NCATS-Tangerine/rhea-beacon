@@ -6,7 +6,7 @@ COPY /server /usr/src/server
 COPY /client /usr/src/client
 COPY /rhea   /usr/src/rhea
 COPY requirements.txt /usr/src/requirements.txt
-COPY config.yaml /usr/src/server/config.yaml
+COPY config.yaml /config.yaml
 
 # include --no-cache-dir flag when development finalizes?
 RUN pip install --upgrade pip && \
