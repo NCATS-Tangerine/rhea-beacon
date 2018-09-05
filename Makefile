@@ -1,6 +1,6 @@
 
-env:
-	virtualenv -p python3.6 venv && source venv/bin/activate
+venv:
+	virtualenv -p python3.6 venv
 
 install:
 	pip install -e controller/
@@ -8,3 +8,15 @@ install:
 
 run:
 	cd server && python -m swagger_server
+
+docker-build:
+	docker build -t ncats:rhea-beacon .
+
+docker-run:
+	docker run -d --rm -p 8090:8080 --name rheab ncats:rhea-beacon
+
+docker-stop:
+	docker stop rheab
+
+docker-logs:
+	docker logs -f rheab
