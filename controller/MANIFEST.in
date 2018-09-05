@@ -1,0 +1,5 @@
+include README.md
+include providence.yaml
+include controller/data/compounds.tsv.gz
+include controller/data/chebi.tsv
+include controller/data/rhea2name.tsv
