@@ -1,0 +1,29 @@
+# This is a config file to hold information about the providence of the data.
+# It should be updated whenever we update the data file in /controller/data
+chebi:
+  - filename: compounds.tsv.gz
+    source: ftp://ftp.ebi.ac.uk/pub/databases/chebi/Flat_file_tab_delimited/compounds.tsv.gz
+    organization: https://www.ebi.ac.uk/chebi/
+    date_aquired: August 31, 2018
+    comment: >
+      The file was downloaded and is used to generate results for the concepts
+      endpoints of this beacon. We only use the subset of this file that
+      intersects with chebiId_name.tsv, as anything outside that intersection
+      will not be recognized by rhea-db.
+
+      "ChEBI is stored in a relational database and we currently provide all-star
+      and 3-star ChEBI table in a flat-file tab delimited format. There are various
+      spreadsheet tools available to import this into a relational database.
+      The files are stored in the same structure as the relational database."
+      -- https://www.ebi.ac.uk/chebi/downloadsForward.do
+rhea:
+  - filename: chebiId_name.tsv
+    source: ftp://ftp.ebi.ac.uk/pub/databases/rhea/tsv/chebiId_name.tsv
+    organization: https://www.rhea-db.org/
+    date_aquired: September 4, 2018
+  - filename: rhea2name.tsv
+    source: created by StarInformatics
+    organization: StarInformatics
+    comments: >
+      This file was created by StarInformatics to speed up the process of getting
+      RHEA reaction names. I cannot remember how exactly we created it..
