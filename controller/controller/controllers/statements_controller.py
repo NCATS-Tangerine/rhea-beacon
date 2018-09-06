@@ -17,6 +17,10 @@ from collections import defaultdict
 
 logger = logging.getLogger(__file__)
 
+PREDICATE = 'has_participant'
+CHEBI_CATEGORY = 'chemical substance'
+RHEA_CATEGORY = 'molecular activity'
+
 def get_evidence(statementId, keywords=None, size=None):  # noqa: E501
     """get_evidence
 
@@ -64,6 +68,12 @@ def get_evidence(statementId, keywords=None, size=None):  # noqa: E501
             date=publication.get('year')
         ))
 
+    if size is not None:
+        annotations = annotations[:size]
+
+    if keywords is not None:
+        annotations = [a for a in annotations if any(k in a.label for k in keywords)]
+
     return annotations
 
 
@@ -87,9 +97,17 @@ def get_statements(s, relations=None, t=None, keywords=None, categories=None, si
 
     :rtype: List[BeaconStatement]
     """
+    if relations is not None and relations != PREDICATE:
+        return []
+    if categories is not None and CHEBI_CATEGORY not in categories:
+        return []
+
     reaction_map = defaultdict(lambda: defaultdict(list))
 
     for chebi_id in s:
+        chebi_id = chebi_id.upper()
+        if not chebi_id.startswith('CHEBI:'):
+            continue
         for reaction_id in rhea.find_reactions(chebi_id):
             reaction_map[chebi_id][reaction_id].append(rhea.get_name(reaction_id))
 
@@ -105,9 +123,17 @@ def get_statements(s, relations=None, t=None, keywords=None, categories=None, si
 
                 s = BeaconStatementSubject(id=reaction_id, name=reaction_name, category='molecular activity')
                 o = BeaconStatementObject(id=chebi_id, name=compound_name, category='chemical substance')
-                p = BeaconStatementPredicate(edge_label='has_participant')
-                statement_id = f'{reaction_id}:has_participant:{chebi_id}'
+                p = BeaconStatementPredicate(edge_label=PREDICATE)
+                statement_id = f'{reaction_id}:{PREDICATE}:{chebi_id}'
                 statement = BeaconStatement(id=statement_id, subject=s, predicate=p, object=o)
                 statements.append(statement)
+
+    if size is not None:
+        statements = statements[:size]
+
+    if t is not None:
+        statements = [s for s in statements if any(s.object.id.lower() == i.lower() for i in t)]
+    if keywords is not None:
+        statements = [s for s in statements if any(k.lower() in s.object.name.lower() for k in keywords)]
 
     return statements

@@ -15,6 +15,9 @@ from controller.providers import chebi, rhea
 
 import xml.etree.ElementTree as etree
 
+CHEBI_CATEGORY = 'chemical substance'
+RHEA_CATEGORY = 'molecular activity'
+
 def get_concept_details(conceptId):  # noqa: E501
     """get_concept_details
 
@@ -48,7 +51,7 @@ def get_concept_details(conceptId):  # noqa: E501
             id=molecule['CHEBI_ACCESSION'],
             name=molecule['rhea_name'],
             definition=molecule['DEFINITION'],
-            category='chemical substance',
+            category=CHEMICAL_SUBSTANCE,
             synonyms=synonyms,
             details=details
         )]
@@ -70,7 +73,7 @@ def get_concept_details(conceptId):  # noqa: E501
         return [BeaconConceptWithDetails(
             id=reaction['reaction_id'],
             name=reaction['reaction_name'],
-            category='molecular activity',
+            category=RHEA_CATEGORY,
             details=details,
             synonyms=[]
         )]
@@ -79,6 +82,9 @@ def get_concept_details(conceptId):  # noqa: E501
         return []
 
 def get_concepts(keywords, categories=None, size=None):
+    if categories is not None and CHEBI_CATEGORY not in categories:
+        return []
+
     molecules = []
 
     molecules = chebi.search(keywords)
@@ -96,6 +102,7 @@ def get_concepts(keywords, categories=None, size=None):
 
         concepts.append(BeaconConcept(
             id=molecule.get('id'),
+            category=CHEBI_CATEGORY,
             name=rhea_name,
             synonyms=synonyms,
             definition=molecule.get('definition')
