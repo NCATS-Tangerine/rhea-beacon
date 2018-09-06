@@ -4,10 +4,10 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
-COPY controller /usr/src/app/controller
-COPY server /usr/src/app/server
+COPY controller controller
+COPY server server
 
-RUN pip3 install --no-cache-dir -r server/requirements.txt && pip install controller/
+RUN pip3 install controller/ && pip3 install --no-cache-dir -r server/requirements.txt
 
 WORKDIR /usr/src/app/server
 

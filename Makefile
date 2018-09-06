@@ -3,7 +3,7 @@ venv:
 	virtualenv -p python3.6 venv
 
 install:
-	pip install -e controller/
+	pip install controller/
 	pip install -r server/requirements.txt
 
 run:
