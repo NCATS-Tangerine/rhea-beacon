@@ -15,36 +15,41 @@ class BeaconConcept(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, id: str=None, name: str=None, categories: List[str]=None, description: str=None):  # noqa: E501
+    def __init__(self, id: str=None, name: str=None, category: str=None, synonyms: List[str]=None, definition: str=None):  # noqa: E501
         """BeaconConcept - a model defined in Swagger
 
         :param id: The id of this BeaconConcept.  # noqa: E501
         :type id: str
         :param name: The name of this BeaconConcept.  # noqa: E501
         :type name: str
-        :param categories: The categories of this BeaconConcept.  # noqa: E501
-        :type categories: List[str]
-        :param description: The description of this BeaconConcept.  # noqa: E501
-        :type description: str
+        :param category: The category of this BeaconConcept.  # noqa: E501
+        :type category: str
+        :param synonyms: The synonyms of this BeaconConcept.  # noqa: E501
+        :type synonyms: List[str]
+        :param definition: The definition of this BeaconConcept.  # noqa: E501
+        :type definition: str
         """
         self.swagger_types = {
             'id': str,
             'name': str,
-            'categories': List[str],
-            'description': str
+            'category': str,
+            'synonyms': List[str],
+            'definition': str
         }
 
         self.attribute_map = {
             'id': 'id',
             'name': 'name',
-            'categories': 'categories',
-            'description': 'description'
+            'category': 'category',
+            'synonyms': 'synonyms',
+            'definition': 'definition'
         }
 
         self._id = id
         self._name = name
-        self._categories = categories
-        self._description = description
+        self._category = category
+        self._synonyms = synonyms
+        self._definition = definition
 
     @classmethod
     def from_dict(cls, dikt) -> 'BeaconConcept':
@@ -61,7 +66,7 @@ class BeaconConcept(Model):
     def id(self) -> str:
         """Gets the id of this BeaconConcept.
 
-        local object CURIE for the concept in the specified knowledge source database   # noqa: E501
+        local object identifier for the concept in the specified knowledge source database   # noqa: E501
 
         :return: The id of this BeaconConcept.
         :rtype: str
@@ -72,7 +77,7 @@ class BeaconConcept(Model):
     def id(self, id: str):
         """Sets the id of this BeaconConcept.
 
-        local object CURIE for the concept in the specified knowledge source database   # noqa: E501
+        local object identifier for the concept in the specified knowledge source database   # noqa: E501
 
         :param id: The id of this BeaconConcept.
         :type id: str
@@ -104,47 +109,70 @@ class BeaconConcept(Model):
         self._name = name
 
     @property
-    def categories(self) -> List[str]:
-        """Gets the categories of this BeaconConcept.
+    def category(self) -> str:
+        """Gets the category of this BeaconConcept.
 
-        concept semantic type 'category'. Should be specified from the [Biolink Model](https://biolink.github.io/biolink-model).   # noqa: E501
+        concept semantic type   # noqa: E501
 
-        :return: The categories of this BeaconConcept.
-        :rtype: List[str]
-        """
-        return self._categories
-
-    @categories.setter
-    def categories(self, categories: List[str]):
-        """Sets the categories of this BeaconConcept.
-
-        concept semantic type 'category'. Should be specified from the [Biolink Model](https://biolink.github.io/biolink-model).   # noqa: E501
-
-        :param categories: The categories of this BeaconConcept.
-        :type categories: List[str]
-        """
-
-        self._categories = categories
-
-    @property
-    def description(self) -> str:
-        """Gets the description of this BeaconConcept.
-
-        (optional) narrative concept definition   # noqa: E501
-
-        :return: The description of this BeaconConcept.
+        :return: The category of this BeaconConcept.
         :rtype: str
         """
-        return self._description
+        return self._category
 
-    @description.setter
-    def description(self, description: str):
-        """Sets the description of this BeaconConcept.
+    @category.setter
+    def category(self, category: str):
+        """Sets the category of this BeaconConcept.
 
-        (optional) narrative concept definition   # noqa: E501
+        concept semantic type   # noqa: E501
 
-        :param description: The description of this BeaconConcept.
-        :type description: str
+        :param category: The category of this BeaconConcept.
+        :type category: str
         """
 
-        self._description = description
+        self._category = category
+
+    @property
+    def synonyms(self) -> List[str]:
+        """Gets the synonyms of this BeaconConcept.
+
+        list of synonyms for concept   # noqa: E501
+
+        :return: The synonyms of this BeaconConcept.
+        :rtype: List[str]
+        """
+        return self._synonyms
+
+    @synonyms.setter
+    def synonyms(self, synonyms: List[str]):
+        """Sets the synonyms of this BeaconConcept.
+
+        list of synonyms for concept   # noqa: E501
+
+        :param synonyms: The synonyms of this BeaconConcept.
+        :type synonyms: List[str]
+        """
+
+        self._synonyms = synonyms
+
+    @property
+    def definition(self) -> str:
+        """Gets the definition of this BeaconConcept.
+
+        concept definition   # noqa: E501
+
+        :return: The definition of this BeaconConcept.
+        :rtype: str
+        """
+        return self._definition
+
+    @definition.setter
+    def definition(self, definition: str):
+        """Sets the definition of this BeaconConcept.
+
+        concept definition   # noqa: E501
+
+        :param definition: The definition of this BeaconConcept.
+        :type definition: str
+        """
+
+        self._definition = definition

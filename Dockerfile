@@ -1,21 +1,15 @@
-FROM python:3
+FROM python:3.6
 
-RUN mkdir -p /usr/src
+RUN mkdir -p /usr/src/app
 
-COPY /server /usr/src/server
-COPY /client /usr/src/client
-COPY /rhea   /usr/src/rhea
-COPY requirements.txt /usr/src/requirements.txt
-COPY config.yaml /config.yaml
+WORKDIR /usr/src/app
 
-# include --no-cache-dir flag when development finalizes?
-RUN pip install --upgrade pip && \
-    pip install -r /usr/src/requirements.txt && \
-    pip install /usr/src/server/ && \
-    pip install /usr/src/client/ && \
-    pip install /usr/src/rhea/
+COPY controller controller
+COPY server server
 
-WORKDIR /usr/src/server
+RUN pip3 install controller/ && pip3 install --no-cache-dir -r server/requirements.txt
+
+WORKDIR /usr/src/app/server
 
 EXPOSE 8080
 

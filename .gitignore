@@ -1,9 +1,4 @@
-# Configuration files
-config.yaml
-docker-compose.yaml
-
-# Swagger code-gen jar
-*.jar
+swagger-codegen-cli.jar
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -79,6 +74,10 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# IPython
+profile_default/
+ipython_config.py
+
 # pyenv
 .python-version
 
@@ -109,6 +108,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-
-# VSCode settings
-.vscode
+.dmypy.json
+dmypy.json

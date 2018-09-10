@@ -1,13 +1,22 @@
-install:
-	cp -n config.yaml-template config.yaml
-	pip install -r requirements.txt
-	cd server/ && python setup.py install
-	cd client/ && python setup.py install
-	cd rhea/ && python setup.py install
 
-# Creating the configuration file without installing
-configure:
-	cp -n config.yaml-template config.yaml
+venv:
+	virtualenv -p python3.6 venv
+
+install:
+	pip install controller/
+	pip install -r server/requirements.txt
 
 run:
 	cd server && python -m swagger_server
+
+docker-build:
+	docker build -t ncats:rhea-beacon .
+
+docker-run:
+	docker run -d --rm -p 8090:8080 --name rheab ncats:rhea-beacon
+
+docker-stop:
+	docker stop rheab
+
+docker-logs:
+	docker logs -f rheab
