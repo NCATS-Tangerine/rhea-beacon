@@ -7,8 +7,10 @@ from swagger_server.models.beacon_statement_subject import BeaconStatementSubjec
 from swagger_server.models.beacon_statement import BeaconStatement
 from swagger_server.models.beacon_statement_predicate import BeaconStatementPredicate
 
-from swagger_server.models.beacon_annotation import BeaconAnnotation  # noqa: E501
-from swagger_server.models.beacon_statement import BeaconStatement  # noqa: E501
+from swagger_server.models.beacon_statement_with_details import BeaconStatementWithDetails
+from swagger_server.models.beacon_statement_annotation import BeaconStatementAnnotation
+from swagger_server.models.beacon_statement_citation import BeaconStatementCitation
+
 from swagger_server import util
 
 from controller.providers import chebi, rhea
@@ -21,19 +23,18 @@ PREDICATE = 'has_participant'
 CHEBI_CATEGORY = 'chemical substance'
 RHEA_CATEGORY = 'molecular activity'
 
-def get_evidence(statementId, keywords=None, size=None):  # noqa: E501
-    """get_evidence
-
-    Retrieves a (paged) list of annotations cited as evidence for a specified concept-relationship statement  # noqa: E501
-
+def get_statement_details(statementId, keywords=None, size=None):
+    """
+    get_statement_details
+    Retrieves a details relating to a specified concept-relationship statement include &#39;is_defined_by and &#39;provided_by&#39; provenance; extended edge properties exported as tag &#x3D; value; and any associated annotations (publications, etc.)  cited as evidence for the given statement.
     :param statementId: (url-encoded) CURIE identifier of the concept-relationship statement (\&quot;assertion\&quot;, \&quot;claim\&quot;) for which associated evidence is sought
     :type statementId: str
-    :param keywords: an array of keywords or substrings against which to filter citation titles
+    :param keywords: an array of keywords or substrings against which to  filter annotation names (e.g. publication titles).
     :type keywords: List[str]
-    :param size: maximum number of cited references requested by the query (default 100)
+    :param size: maximum number of concept entries requested by the client; if this argument is omitted, then the query is expected to returned all  the available data for the query
     :type size: int
 
-    :rtype: List[BeaconAnnotation]
+    :rtype: BeaconStatementWithDetails
     """
     if statementId.count(':') != 4:
         logger.warn('Could not parse statementId: {statementId}')
@@ -43,7 +44,7 @@ def get_evidence(statementId, keywords=None, size=None):  # noqa: E501
 
     publications = rhea.get_publications(rhea_id)
 
-    annotations = []
+    evidences = []
 
     for publication in publications:
         if 'title' in publication:
@@ -54,30 +55,40 @@ def get_evidence(statementId, keywords=None, size=None):  # noqa: E501
         else:
             lable = None
 
+        url = None
+        identifier = None
         if 'id' in publication:
             if 'db' in publication:
                 identifier = f'{publication["db"]}:{publication["id"]}'
+                if publication['db'].lower() == 'pmid':
+                    url = f'https://www.ncbi.nlm.nih.gov/pubmed/{publication["id"]}'
             else:
                 identifier = publication['id']
-        else:
-            identifier = None
 
-        annotations.append(BeaconAnnotation(
+        evidences.append(BeaconStatementCitation(
             id=identifier,
-            label=label,
-            date=publication.get('year')
+            uri=url,
+            name=label,
+            date=publication.get('year'),
+            evidence_type=None
         ))
 
     if size is not None:
-        annotations = annotations[:size]
+        evidences = evidences[:size]
 
     if keywords is not None:
-        annotations = [a for a in annotations if any(k in a.label for k in keywords)]
+        evidences = [a for a in evidences if any(k in a.label for k in keywords)]
 
-    return annotations
+    return BeaconStatementWithDetails(
+        id=statementId,
+        is_defined_by='http://starinformatics.com',
+        provided_by='https://www.rhea-db.org/',
+        qualifiers=[],
+        annotation=[],
+        evidence=evidences
+    )
 
-
-def get_statements(s, relations=None, t=None, keywords=None, categories=None, size=None):  # noqa: E501
+def get_statements(s, edge_label=None, relation=None, t=None, keywords=None, categories=None, size=None):
     """get_statements
 
     Given a specified set of [CURIE-encoded](https://www.w3.org/TR/curie/)  &#39;source&#39; (&#39;s&#39;) concept identifiers,  retrieves a paged list of relationship statements where either the subject or object concept matches any of the input &#39;source&#39; concepts provided.  Optionally, a set of &#39;target&#39; (&#39;t&#39;) concept  identifiers may also be given, in which case a member of the &#39;target&#39; identifier set should match the concept opposing the &#39;source&#39; in the  statement, that is, if the&#39;source&#39; matches a subject, then the  &#39;target&#39; should match the object of a given statement (or vice versa).  # noqa: E501
@@ -97,19 +108,24 @@ def get_statements(s, relations=None, t=None, keywords=None, categories=None, si
 
     :rtype: List[BeaconStatement]
     """
-    if relations is not None and relations != PREDICATE:
+    if edge_label is not None and edge_label != PREDICATE:
         return []
     if categories is not None and CHEBI_CATEGORY not in categories:
         return []
 
     reaction_map = defaultdict(lambda: defaultdict(list))
 
-    for chebi_id in s:
-        chebi_id = chebi_id.upper()
-        if not chebi_id.startswith('CHEBI:'):
+    for concept_id in s:
+        concept_id = concept_id.upper()
+        if concept_id.startswith('CHEBI:'):
+            for reaction_id in rhea.find_reactions(concept_id):
+                reaction_map[concept_id][reaction_id].append(rhea.get_name(reaction_id))
+        elif concept_id.startswith('RHEA:'):
+            reaction = rhea.get_reaction(concept_id)
+            for substance in reaction['products'] + reaction['reactants']:
+                reaction_map[substance.get('id')][concept_id].append(reaction.get('reaction_name'))
+        else:
             continue
-        for reaction_id in rhea.find_reactions(chebi_id):
-            reaction_map[chebi_id][reaction_id].append(rhea.get_name(reaction_id))
 
     statements = []
 
@@ -121,8 +137,8 @@ def get_statements(s, relations=None, t=None, keywords=None, categories=None, si
                 if not reaction_id.startswith('RHEA:'):
                     reaction_id = f'RHEA:{reaction_id}'
 
-                s = BeaconStatementSubject(id=reaction_id, name=reaction_name, category='molecular activity')
-                o = BeaconStatementObject(id=chebi_id, name=compound_name, category='chemical substance')
+                s = BeaconStatementSubject(id=reaction_id, name=reaction_name, categories=[RHEA_CATEGORY])
+                o = BeaconStatementObject(id=chebi_id, name=compound_name, categories=[CHEBI_CATEGORY])
                 p = BeaconStatementPredicate(edge_label=PREDICATE)
                 statement_id = f'{reaction_id}:{PREDICATE}:{chebi_id}'
                 statement = BeaconStatement(id=statement_id, subject=s, predicate=p, object=o)

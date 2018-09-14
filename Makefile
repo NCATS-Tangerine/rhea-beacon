@@ -13,7 +13,7 @@ docker-build:
 	docker build -t ncats:rhea-beacon .
 
 docker-run:
-	docker run -d --rm -p 8090:8080 --name rheab ncats:rhea-beacon
+	docker run -d --rm -p 8079:8080 --name rheab ncats:rhea-beacon
 
 docker-stop:
 	docker stop rheab

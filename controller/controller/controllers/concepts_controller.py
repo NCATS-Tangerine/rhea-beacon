@@ -19,14 +19,13 @@ CHEBI_CATEGORY = 'chemical substance'
 RHEA_CATEGORY = 'molecular activity'
 
 def get_concept_details(conceptId):  # noqa: E501
-    """get_concept_details
-
-    Retrieves details for a specified concepts in the system, as specified by a (url-encoded) CURIE identifier of a concept known the given knowledge source.  # noqa: E501
-
+    """
+    get_concept_details
+    Retrieves details for a specified concepts in the system, as specified by a (url-encoded) CURIE identifier of a concept known the given knowledge source.
     :param conceptId: (url-encoded) CURIE identifier of concept of interest
     :type conceptId: str
 
-    :rtype: List[BeaconConceptWithDetails]
+    :rtype: BeaconConceptWithDetails
     """
     if conceptId.startswith('CHEBI:'):
         molecule = chebi.get(conceptId)
@@ -47,14 +46,14 @@ def get_concept_details(conceptId):  # noqa: E501
                     value=molecule[key]
                 ))
 
-        return [BeaconConceptWithDetails(
+        return BeaconConceptWithDetails(
             id=molecule['CHEBI_ACCESSION'],
             name=molecule['rhea_name'],
-            definition=molecule['DEFINITION'],
-            category=CHEMICAL_SUBSTANCE,
+            description=molecule['DEFINITION'],
+            categories=[CHEBI_CATEGORY],
             synonyms=synonyms,
             details=details
-        )]
+        )
 
     elif conceptId.startswith('RHEA:'):
         reaction = rhea.get_reaction(conceptId)
@@ -73,7 +72,7 @@ def get_concept_details(conceptId):  # noqa: E501
         return [BeaconConceptWithDetails(
             id=reaction['reaction_id'],
             name=reaction['reaction_name'],
-            category=RHEA_CATEGORY,
+            categories=[RHEA_CATEGORY],
             details=details,
             synonyms=[]
         )]
@@ -102,10 +101,9 @@ def get_concepts(keywords, categories=None, size=None):
 
         concepts.append(BeaconConcept(
             id=molecule.get('id'),
-            category=CHEBI_CATEGORY,
+            categories=[CHEBI_CATEGORY],
             name=rhea_name,
-            synonyms=synonyms,
-            definition=molecule.get('definition')
+            description=molecule.get('definition')
         ))
 
     if size is not None:
@@ -125,4 +123,12 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 
     :rtype: List[ExactMatchResponse]
     """
-    return []
+    responses = []
+    for curie in c:
+        within_domain = chebi.get(curie) != {}
+        responses.append(ExactMatchResponse(
+            id=curie,
+            within_domain=within_domain,
+            has_exact_matches=[]
+        ))
+    return responses

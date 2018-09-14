@@ -83,8 +83,6 @@ def get(chebiId:str) -> dict:
     results = compounds_df.loc[compounds_df['CHEBI_ACCESSION'] == chebiId].to_dict(orient='records')
 
     for molecule in results:
-        for key, value in molecule.items():
-            molecule[key] = value.strip() if value is not None else None
         return molecule
     else:
         return {}
