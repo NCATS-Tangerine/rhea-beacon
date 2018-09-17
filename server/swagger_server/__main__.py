@@ -14,14 +14,18 @@ with open(os.path.join(app.specification_dir, 'swagger.yaml')) as f:
     d = yaml.load(f)
 
 basePath = d['basePath']
+if not basePath.endswith('/'):
+    basePath = f'{basePath}/'
 
-@app.route(basePath)
-def ui():
-    return redirect(f'{basePath}/ui')
+def handle_error(e):
+    return redirect(f'{basePath}ui/')
 
 def main():
     app.app.json_encoder = encoder.JSONEncoder
-    app.add_api('swagger.yaml', arguments={'title': 'Translator Knowledge Beacon API'})
+    app.add_api('swagger.yaml', arguments={'title': 'Rhea Knowledge Beacon API'})
+
+    app.add_error_handler(404, handle_error)
+
     app.run(port=8080)
 
 
