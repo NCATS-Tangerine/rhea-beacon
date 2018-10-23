@@ -88,3 +88,10 @@ with open('enzyme.dat', 'r') as f:
                     written += 1
 
 print('Written:', written, ', Total enzymes in Rhea:', len(enzymes))
+
+os.remove('enzyme.dat')
+
+if not os.path.exists('enzyme.dat'):
+    print('Successfully removed enzyme.dat')
+else:
+    print('Failed to remove enzyme.dat')
