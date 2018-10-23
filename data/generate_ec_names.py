@@ -51,7 +51,6 @@ TERMINATION = '//'
 ALTERNATE_NAMES = 'AN'
 DESCRIPTION = 'DE'
 
-
 written = 0
 with open('enzyme.dat', 'r') as f:
     open("ecc_names.csv", "w+").close()
@@ -59,7 +58,15 @@ with open('enzyme.dat', 'r') as f:
         output_file.write('ID\tName\tSynonyms\n')
         d = None
         for line in f:
-            line_type, line_content = line.split(maxsplit=1)
+            components = line.split()
+
+            if len(components) == 1 and components[0] == TERMINATION:
+                line_type = TERMINATION
+            elif len(components) > 1:
+                line_type = components[0]
+                line_content = ' '.join(components[1:])
+            else:
+                continue
 
             if line_type == IDENTIFICATION:
                 d = {'id' : line_content}
@@ -74,9 +81,10 @@ with open('enzyme.dat', 'r') as f:
                 d['synonyms'].append(line_content)
             elif line_type == TERMINATION and d is not None:
                 i, n, s = d.get('id', ''), d.get('name', ''), d.get('synonyms', [])
-                s = ';'.join(s)
-                output_file.write('{i}\t{n}\t{s}\n'.format(i=i, n=n, s=s))
+                if i in enzymes:
+                    s = ';'.join(s)
+                    output_file.write('{i}\t{n}\t{s}\n'.format(i=i, n=n, s=s))
 
-                written += 1
+                    written += 1
 
 print('Written:', written, ', Total enzymes in Rhea:', len(enzymes))
