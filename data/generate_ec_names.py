@@ -18,7 +18,7 @@ if not os.path.exists('enzyme.dat'):
         urllib.urlretrieve(path, 'enzyme.dat')
     finally:
         if not os.path.exists('enzyme.dat'):
-            quit('Could not download ' + path)
+            quit('Could not download {path}'.format(path))
 
 q="""
 PREFIX rh:<http://rdf.rhea-db.org/>
@@ -75,7 +75,7 @@ with open('enzyme.dat', 'r') as f:
             elif line_type == TERMINATION and d is not None:
                 i, n, s = d.get('id', ''), d.get('name', ''), d.get('synonyms', [])
                 s = ';'.join(s)
-                output_file.write(f'{i}\t{n}\t{s}\n')
+                output_file.write('{i}\t{n}\t{s}\n'.format(i=i, n=n, s=s))
 
                 written += 1
 
