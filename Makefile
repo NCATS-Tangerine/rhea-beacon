@@ -9,9 +9,8 @@ dev-install:
 	pip install -e .
 	pip install beacon/
 
-
 run:
-	cd server && python -m swagger_server
+	cd beacon && python -m swagger_server
 
 docker-build:
 	docker build -t ncats:rhea-beacon .

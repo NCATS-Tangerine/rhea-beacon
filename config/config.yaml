@@ -12,9 +12,9 @@
 # Or you can install and use another.
 server: tornado
 
-basepath: /api/
+basepath: /beacon/rhea/
 
-title: Biothings Explorer Translator Knowledge Beacon API
+title: Rhea Translator Knowledge Beacon API
 
 port: 8080
 
