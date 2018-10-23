@@ -1,13 +1,16 @@
-
 venv:
 	virtualenv -p python3.6 venv
 
 install:
-	pip install controller/
-	pip install -r server/requirements.txt
+	pip install .
+	pip install beacon/
+
+dev-install:
+	pip install -e .
+	pip install beacon/
 
 run:
-	cd server && python -m swagger_server
+	cd beacon && python -m swagger_server
 
 docker-build:
 	docker build -t ncats:rhea-beacon .
