@@ -18,7 +18,7 @@ if not os.path.exists('enzyme.dat'):
         urllib.urlretrieve(path, 'enzyme.dat')
     finally:
         if not os.path.exists('enzyme.dat'):
-            quit(f'Could not download {path}')
+            quit('Could not download ' + path)
 
 q="""
 PREFIX rh:<http://rdf.rhea-db.org/>
