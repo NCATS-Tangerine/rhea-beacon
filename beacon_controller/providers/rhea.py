@@ -280,8 +280,7 @@ def find_compounds(keywords, limit=None, offset=None):
           ?compound rh:accession ?compoundAc .
           {build_substring_filter('compoundName', keywords)}
         }}
-        GROUP BY ?compoundAc ?chebi ?compoundName
-        ORDER BY DESC(?reactionCount)
+        ORDER BY ?reactionCount
         {build_limit(limit)}
         {build_offset(offset)}
         """
