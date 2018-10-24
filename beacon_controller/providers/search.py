@@ -17,38 +17,39 @@ def search(df:pd.DataFrame, columns:Union[List[str], str], keywords:Union[List[s
     if not isinstance(column_multiplier, dict):
         column_multiplier = {}
 
-    q = df.apply(lambda x: False, axis=1)
-    for column in columns:
-        for keyword in keywords:
-                q |= df[column].str.contains(keyword, case=False, regex=False)
-
-    result = df[q == True]
-
-    result = result.drop_duplicates(subset=unique_columns)
-
-    def count(row):
-        c = 0
+    if keywords != []:
+        q = df.apply(lambda x: False, axis=1)
         for column in columns:
-            m = 1 if column not in column_multiplier else column_multiplier[column]
-            value = row[column]
-            if isinstance(value, str):
-                for keyword in keywords:
-                    keyword, value = keyword.lower(), value.lower()
-                    c += value.count(keyword) * m
-        return c
+            for keyword in keywords:
+                    q |= df[column].str.contains(keyword, case=False, regex=False)
 
-    if max(result.shape) == 0:
-        result['search_score'] = result.apply(count, axis=1)
-        result = result.sort_values(by=['search_score'], ascending=False)
+        df = df[q == True]
 
-    total_num_rows = result.shape[0]
+        def count(row):
+            c = 0
+            for column in columns:
+                m = 1 if column not in column_multiplier else column_multiplier[column]
+                value = row[column]
+                if isinstance(value, str):
+                    for keyword in keywords:
+                        keyword, value = keyword.lower(), value.lower()
+                        c += value.count(keyword) * m
+            return c
+
+        if max(df.shape) == 0:
+            df['search_score'] = df.apply(count, axis=1)
+            df = df.sort_values(by=['search_score'], ascending=False)
+
+    df = df.drop_duplicates(subset=unique_columns)
 
     if offset is not None:
-        result = result.iloc[offset:]
+        df = df.iloc[offset:]
     if size is not None:
-        result = result.iloc[:size]
+        df = df.iloc[:size]
+
+    total_num_rows = df.shape[0]
 
     if metadata:
-        return result.to_dict(orient='records'), total_num_rows
+        return df.to_dict(orient='records'), total_num_rows
     else:
-        return result.to_dict(orient='records')
+        return df.to_dict(orient='records')
