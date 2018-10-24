@@ -68,7 +68,8 @@ def get_statement_details(statement_id, keywords=None, offset=None, size=None): 
                 id=citation.replace('http://rdf.ncbi.nlm.nih.gov/pubmed/', 'PUBMED:'),
                 uri=citation,
                 date=date,
-                name=name
+                name=name,
+                evidence_type='ECO:0000312'
             ))
 
         return BeaconStatementWithDetails(
