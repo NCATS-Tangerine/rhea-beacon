@@ -232,4 +232,4 @@ def build_offset(offset):
     return f'OFFSET {offset}' if isinstance(offset, int) and offset >= 0 else ''
 
 def build_size(size):
-    return f'LIMIT {size}' if isinstance(size, int) and size >= 0 else 'LIMIT 100'
+    return f'LIMIT {size}' if isinstance(size, int) and size >= 0 else ''
