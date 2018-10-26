@@ -125,7 +125,7 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
     """
     concepts = []
 
-    if categories is None or any(a in categories for a in blm.ancestors('molecular entity')):
+    if categories is None or any(a in categories for a in blm.ancestors(Category.protein.name)):
         enzymes, total_num_rows = rhea.find_enzymes(keywords, offset, size, metadata=True)
         for enzyme in enzymes:
             concepts.append(BeaconConcept(
