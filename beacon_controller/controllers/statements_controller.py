@@ -68,7 +68,8 @@ def get_statement_details(statement_id, keywords=None, offset=None, size=None): 
                 id=citation.replace('http://rdf.ncbi.nlm.nih.gov/pubmed/', 'PUBMED:'),
                 uri=citation,
                 date=date,
-                name=name
+                name=name,
+                evidence_type='ECO:0000312'
             ))
 
         return BeaconStatementWithDetails(
@@ -231,4 +232,4 @@ def build_offset(offset):
     return f'OFFSET {offset}' if isinstance(offset, int) and offset >= 0 else ''
 
 def build_size(size):
-    return f'LIMIT {size}' if isinstance(size, int) and size >= 0 else 'LIMIT 100'
+    return f'LIMIT {size}' if isinstance(size, int) and size >= 0 else ''

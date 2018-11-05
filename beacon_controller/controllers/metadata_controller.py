@@ -58,7 +58,7 @@ def get_concept_categories():  # noqa: E501
             category=category.name,
             local_category=category.name,
             description=description,
-            frequency=frequency
+            frequency=int(frequency)
         ))
 
     return categories
@@ -75,6 +75,7 @@ def get_knowledge_map():  # noqa: E501
     kmaps = []
     for predicate in Predicate:
         kmaps.append(BeaconKnowledgeMapStatement(
+            description=f'{predicate.domain.name} {predicate.relation.replace("_", " ")} {predicate.codomain.name}',
             subject=BeaconKnowledgeMapSubject(
                 category=predicate.domain.name,
                 prefixes=predicate.domain.prefixes
@@ -125,4 +126,4 @@ def get_predicate_count(predicate:Predicate):
         """
         results = rhea.get_records(q)
         for result in results:
-            return result['statementCount']['value']
+            return int(result['statementCount']['value'])

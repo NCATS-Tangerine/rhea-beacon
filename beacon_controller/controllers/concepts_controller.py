@@ -89,10 +89,15 @@ def get_concept_details(concept_id):  # noqa: E501
         }}
         LIMIT 1
         """)
+        try:
+            uri = record['chebi']['value']
+        except:
+            uri = None
+
         for record in records:
             return BeaconConceptWithDetails(
                 id=concept_id,
-                uri=record['chebi']['value'],
+                uri=uri,
                 name=record['compoundName']['value'],
                 symbol=None,
                 categories=[Category.chemical_substance.name],
@@ -101,8 +106,6 @@ def get_concept_details(concept_id):  # noqa: E501
                 exact_matches=[],
                 details=[BeaconConceptDetail(tag='reactionCount', value=record['reactionCount']['value'])]
             )
-    # return rhea.get_compound(concept_id)
-
 
 def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noqa: E501
     """get_concepts
@@ -122,7 +125,7 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
     """
     concepts = []
 
-    if categories is None or any(a in categories for a in blm.ancestors('molecular entity')):
+    if categories is None or any(a in categories for a in blm.ancestors(Category.protein.name)):
         enzymes, total_num_rows = rhea.find_enzymes(keywords, offset, size, metadata=True)
         for enzyme in enzymes:
             concepts.append(BeaconConcept(
