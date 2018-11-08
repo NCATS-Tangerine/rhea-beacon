@@ -42,12 +42,12 @@ def search(df:pd.DataFrame, columns:Union[List[str], str], keywords:Union[List[s
 
     df = df.drop_duplicates(subset=unique_columns)
 
+    total_num_rows = df.shape[0]
+
     if offset is not None:
         df = df.iloc[offset:]
     if size is not None:
         df = df.iloc[:size]
-
-    total_num_rows = df.shape[0]
 
     if metadata:
         return df.to_dict(orient='records'), total_num_rows
