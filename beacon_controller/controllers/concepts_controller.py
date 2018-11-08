@@ -136,8 +136,10 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
             ))
 
         if size is not None and len(concepts) < size:
-            offset = offset - max(0, total_num_rows) if offset is not None else None
+            offset = max(0, offset - total_num_rows) if offset is not None else None
             size = size - len(concepts) if size is not None else None
+        elif size is None or len(concepts) >= size:
+            return concepts
 
     if categories is None or any(a in categories for a in blm.ancestors(Category.chemical_substance.name)):
         compounds = rhea.find_compounds(keywords, offset=offset, limit=size)
