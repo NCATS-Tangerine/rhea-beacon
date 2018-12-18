@@ -6,6 +6,16 @@ from data import path
 from typing import List
 
 df = None
+rheaIds = None
+
+def load_rheaIds():
+    global rheaIds
+
+    if rheaIds is None:
+        df = pd.read_csv(os.path.join(path, 'rhea2xrefs.tsv'), sep='\t', dtype=str)
+        rheaIds = df.RHEA_ID.unique()
+
+    return rheaIds
 
 def load_df():
     """
@@ -33,11 +43,17 @@ def get_xrefs(curie:str) -> List[str]:
     prefix, local_id = curie.split(':', 1)
 
     df = load_df()
+    rheaIds = load_rheaIds()
 
     if prefix == 'RHEA':
         df = df[(df.RHEA_ID == local_id) | (df.MASTER_ID == local_id)]
 
         xrefs = set()
+
+        if local_id in rheaIds:
+            xrefs.add(curie)
+        else:
+            return []
 
         for index, row in df.iterrows():
             if row.DB == 'KEGG_REACTION':
