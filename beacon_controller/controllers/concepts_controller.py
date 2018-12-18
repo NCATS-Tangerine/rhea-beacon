@@ -5,6 +5,7 @@ from swagger_server.models.exact_match_response import ExactMatchResponse  # noq
 
 from beacon_controller import biolink_model as blm
 from beacon_controller.providers import rhea
+from beacon_controller.providers.xrefs import get_xrefs
 from beacon_controller.const import Category, Predicate
 
 def get_concept_details(concept_id):  # noqa: E501
@@ -163,14 +164,25 @@ def get_exact_matches_to_concept_list(c):  # noqa: E501
 
     :rtype: List[ExactMatchResponse]
     """
-    d = rhea.curies_exist(c)
-    results = []
 
-    for curie, within_domain in d.items():
-        results.append(ExactMatchResponse(
-            id=curie,
-            within_domain=within_domain,
-            has_exact_matches=[]
-        ))
+    results = []
+    for conceptId in c:
+        if ':' not in conceptId:
+            continue
+
+        xrefs = get_xrefs(conceptId)
+
+        if xrefs != []:
+            results.append(ExactMatchResponse(
+                id=conceptId,
+                within_domain=True,
+                has_exact_matches=xrefs
+            ))
+        else:
+            results.append(ExactMatchResponse(
+                id=conceptId,
+                within_domain=False,
+                has_exact_matches=[]
+            ))
 
     return results

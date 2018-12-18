@@ -4,13 +4,42 @@ from swagger_server.models.beacon_knowledge_map_object import BeaconKnowledgeMap
 from swagger_server.models.beacon_knowledge_map_subject import BeaconKnowledgeMapSubject
 from swagger_server.models.beacon_knowledge_map_predicate import BeaconKnowledgeMapPredicate
 from swagger_server.models.beacon_predicate import BeaconPredicate  # noqa: E501
+from swagger_server.models.namespace import Namespace
+from swagger_server.models.local_namespace import LocalNamespace
 
 from beacon_controller.const import Category, Predicate
 from beacon_controller.providers import rhea
+from beacon_controller.providers.xrefs import load_df
 
 import beacon_controller.biolink_model as blm
+from beacon_controller.providers.xrefs import load_df
 
 import functools
+
+@functools.lru_cache()
+def get_namespaces():
+    """get_namespaces
+    Get a list of namespace (curie prefixes) mappings that this beacon can perform with its /exactmatches endpoint  # noqa: E501
+    :rtype: List[LocalNamespace]
+    """
+    frequency = load_df().RHEA_ID.nunique()
+
+    namespaces = [
+        Namespace("KEGG.REACTION", uri='http://identifiers.org/kegg/'),
+        Namespace("KEGG", uri='http://identifiers.org/kegg.reaction/'),
+        Namespace("METACYC", uri='http://identifiers.org/biocyc/METACYC:'),
+        Namespace("ECOCYC", uri='http://identifiers.org/biocyc/ECOCYC:'),
+        Namespace("REACTOME", uri='http://identifiers.org/reactome/'),
+        Namespace("MACIE", uri='http://identifiers.org/macie/'),
+        Namespace("RHEA", uri='http://identifiers.org/rhea/'),
+    ]
+
+    return [LocalNamespace(
+        local_prefix='RHEA',
+        uri='http://identifiers.org/rhea/',
+        clique_mappings=namespaces,
+        frequency=frequency,
+    )]
 
 @functools.lru_cache()
 def get_concept_categories():  # noqa: E501
