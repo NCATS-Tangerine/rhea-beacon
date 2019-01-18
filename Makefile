@@ -1,3 +1,5 @@
+SPECIFICATION=api/1.3.0.yaml
+
 venv:
 	virtualenv -p python3.6 venv
 
@@ -9,9 +11,9 @@ dev-install:
 	pip install -e .
 	pip install beacon/
 
-generate:
+regenerate:
 	wget -c http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.3.1.jar -O swagger-codegen-cli.jar
-	java -jar swagger-codegen-cli.jar generate -i api/1.3.0.yaml -l python-flask -o beacon
+	java -jar swagger-codegen-cli.jar generate -i ${SPECIFICATION} -l python-flask -o beacon
 
 run:
 	cd beacon && python -m swagger_server
