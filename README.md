@@ -6,6 +6,8 @@ Hosted at https://kba.ncats.io/beacon/rhea/
 
 ## Getting started
 
+This project was developed using Python 3.6, and it is advised that you use this version.
+
 ### Create virtual environment
 
 It is helpful to keep a local virtual environment in which all local dependencies as well as the application can be installed.
