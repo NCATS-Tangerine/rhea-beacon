@@ -4,6 +4,8 @@ Knowledge beacon wrapper for https://www.rhea-db.org/
 
 Hosted at https://kba.ncats.io/beacon/rhea/
 
+Python Beacon client https://github.com/NCATS-Tangerine/tkbeacon-python-client
+
 ## Getting started
 
 This project was developed using Python 3.6, and it is advised that you use this version.
