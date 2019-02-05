@@ -26,6 +26,8 @@ def get_concept_details(concept_id):  # noqa: E501
         if concept is None:
             return None
 
+        import pudb; pu.db
+
         _, ec_number = concept_id.split(':', 1)
 
         synonyms = concept.get('Synonyms')
@@ -36,7 +38,7 @@ def get_concept_details(concept_id):  # noqa: E501
             synonyms = []
 
         return BeaconConceptWithDetails(
-            id=concept.get('ID'),
+            id=concept_id,
             uri=f'https://enzyme.expasy.org/EC/{ec_number}',
             name=concept.get('Name'),
             symbol=None,
