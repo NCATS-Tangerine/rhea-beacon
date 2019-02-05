@@ -26,8 +26,6 @@ def get_concept_details(concept_id):  # noqa: E501
         if concept is None:
             return None
 
-        import pudb; pu.db
-
         _, ec_number = concept_id.split(':', 1)
 
         synonyms = concept.get('Synonyms')
