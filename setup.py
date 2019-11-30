@@ -13,7 +13,8 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'BiolinkMG',
+        'biolink-model',
+        'biolinkml',
         'tornado',
         'requests',
         'flask',
