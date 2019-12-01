@@ -22,6 +22,7 @@ setup(
         'connexion == 1.1.15',
         'python_dateutil == 2.6.1',
         'setuptools >= 21.0.0',
-        'pandas'
+        'pandas',
+        'bmt',
     ]
 )

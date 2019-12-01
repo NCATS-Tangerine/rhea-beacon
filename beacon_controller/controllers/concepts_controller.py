@@ -124,6 +124,9 @@ def get_concepts(keywords=None, categories=None, offset=None, size=None):  # noq
 
     :rtype: List[BeaconConcept]
     """
+    if size is None:
+        size = 10
+
     concepts = []
 
     if categories is None or any(a in categories for a in blm.ancestors(Category.protein.name)):
