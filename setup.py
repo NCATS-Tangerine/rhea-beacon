@@ -1,8 +1,8 @@
 from setuptools import setup
 
 setup(
-    name="translator-knowledge-beacon",
-    url="https://github.com/NCATS-Tangerine/translator-knowledge-beacon",
+    name="rhea-beacon",
+    url="https://github.com/NCATS-Tangerine/rhea-beacon",
     version = "1.3.1",
     packages = [
         'beacon_controller',
@@ -13,7 +13,7 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'biolink-model',
+        'bmt',
         'biolinkml',
         'tornado',
         'requests',
