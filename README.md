@@ -8,7 +8,7 @@ Python Beacon client https://github.com/NCATS-Tangerine/tkbeacon-python-client
 
 ## Getting started
 
-The lateast  release of this project was expects the use of Python 3.7, and it is advised that you use this version.
+The latest release of this project expects the use of Python 3.7, and it is advised that you use this version.
 
 ### Create virtual environment
 
